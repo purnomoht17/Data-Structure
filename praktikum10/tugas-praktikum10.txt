@@ -1,0 +1,270 @@
+Kelompok 5
+Anggota :
+    Heru Purnomo        (535230031)
+    Ahmad Diky Effendi  (535230101)
+    Jessen Enricko      (535230006)
+
+No 1. melengkapi fungsi DFS Traversal dan BFS Traversal di WeightedGraph.class
+No 2. menambahkan fungsi deleteEdge di WeightedGraph.class
+
+WeightedGraph.class
+
+package strukdat;
+
+import java.util.*;
+
+class Edge<T> {
+	T neighbor; // connected vertex
+	int weight; // weight
+
+	// Constructor, Time O(1) Space O(1)
+	public Edge(T v, int w) {
+		this.neighbor = v;
+		this.weight = w;
+	}
+
+	// Time O(1) Space O(1)
+	@Override
+	public String toString() {
+		return "(" + neighbor + "," + weight + ")";
+	}
+}
+
+public class WeightedGraph<T> {
+	private Map<T, SingleList<Edge<T>>> adj;
+	boolean directed;
+
+	// Constructor, Time O(1) Space O(1)
+	public WeightedGraph(boolean type) {
+		adj = new HashMap<>();
+		directed = type; // false: undirected, true: directed
+	}
+
+	// Add edges including adding nodes, Time O(1) Space O(1)
+	public void addEdge(T a, T b, int w) {
+		adj.putIfAbsent(a, new SingleList<>()); // add node
+		adj.putIfAbsent(b, new SingleList<>()); // add node
+		Edge<T> edge1 = new Edge<>(b, w);
+		adj.get(a).pushQ(edge1); // add edge
+		if (!directed) { // undirected
+			Edge<T> edge2 = new Edge<>(a, w);
+			adj.get(b).pushQ(edge2);
+		}
+	}
+
+	// Delete edge, Time O(E) Space O(1)
+	public void deleteEdge(T a, T b) {
+		removeEdgeFromList(a, b);
+		if (!directed) {
+			removeEdgeFromList(b, a);
+		}
+	}
+
+	// Helper method to remove an edge from the adjacency list
+	private void removeEdgeFromList(T a, T b) {
+		if (adj.containsKey(a)) {
+			SingleList<Edge<T>> list = adj.get(a);
+			Node<Edge<T>> curr = list.head;
+			while (curr != null) {
+				if (curr.data.neighbor.equals(b)) {
+					list.remove(curr.data);
+					break;
+				}
+				curr = curr.next;
+			}
+		}
+	}
+
+	// Print graph as hashmap, Time O(V+E), Space O(1)
+	public void printGraph() {
+		for (T key : adj.keySet()) {
+			System.out.print(key.toString() + " : ");
+			SingleList<Edge<T>> thelist = adj.get(key);
+			Node<Edge<T>> curr = thelist.head;
+			while (curr != null) {
+				System.out.print(curr.data);
+				curr = curr.next;
+			}
+			System.out.println();
+		}
+	}
+
+	//DFS
+	public void dfsTraversal(T src) {
+		if (!adj.containsKey(src)) {
+			return;
+		}
+
+		Set<T> visited = new HashSet<>();
+		dfsHelper(src, visited);
+		System.out.println();
+	}
+
+	private void dfsHelper(T node, Set<T> visited) {
+		visited.add(node);
+		System.out.print(node + " ");
+
+		SingleList<Edge<T>> edges = adj.get(node);
+		Node<Edge<T>> curr = edges.head;
+
+		while (curr != null) {
+			T neighbor = curr.data.neighbor;
+			if (!visited.contains(neighbor)) {
+				dfsHelper(neighbor, visited);
+			}
+			curr = curr.next;
+		}
+	}
+
+	//BFS
+	public void bfsTraversal(T src) {
+		if (!adj.containsKey(src)) {
+			return;
+		}
+
+		SingleList<T> queue = new SingleList<>(); // Queue
+		Set<T> visited = new HashSet<>();
+
+		queue.pushQ(src);
+		visited.add(src);
+
+		while (!queue.isEmpty()) {
+			T node = queue.remove();
+			System.out.print(node + " "); // Visit the node
+
+			SingleList<Edge<T>> edges = adj.get(node);
+			Node<Edge<T>> curr = edges.head;
+
+			while (curr != null) {
+				T neighbor = curr.data.neighbor;
+				if (!visited.contains(neighbor)) {
+					queue.pushQ(neighbor);
+					visited.add(neighbor);
+				}
+				curr = curr.next;
+			}
+		}
+		System.out.println();
+	}
+}
+
+MainProgram.class
+
+package strukdat;
+//import strukdat.Graph;
+
+class MyVertex{
+	String nodeName;
+	MyVertex(String name)
+	{
+		this.nodeName = name;
+	}
+
+    @Override
+    public String toString() {
+        return (nodeName);
+    }
+}
+
+public class MainProgram {
+    public static void main(String[] args) {
+        // Create vertices
+        MyVertex v1 = new MyVertex("A");
+        MyVertex v2 = new MyVertex("B");
+        MyVertex v3 = new MyVertex("C");
+        MyVertex v4 = new MyVertex("D");
+        MyVertex v5 = new MyVertex("E");
+        MyVertex v6 = new MyVertex("F");
+        MyVertex v7 = new MyVertex("G");
+        MyVertex v8 = new MyVertex("H");
+        MyVertex v9 = new MyVertex("I");
+
+        // Create a weighted graph (directed)
+        WeightedGraph<MyVertex> WG = new WeightedGraph<>(true);
+
+        WG.addEdge(v1, v2, 1);
+        WG.addEdge(v1, v4, 1);
+        WG.addEdge(v1, v5, 1);
+        WG.addEdge(v2, v5, 1);
+        WG.addEdge(v3, v2, 1);
+        WG.addEdge(v4, v7, 1);
+        WG.addEdge(v5, v6, 1);
+        WG.addEdge(v5, v8, 1);
+        WG.addEdge(v6, v3, 1);
+        WG.addEdge(v6, v8, 1);
+        WG.addEdge(v7, v8, 1);
+        WG.addEdge(v8, v9, 1);
+        WG.addEdge(v9, v6, 1);
+
+        // Print the graph
+        System.out.println("directed Graph:");
+        WG.printGraph();
+        System.out.println();
+
+        System.out.println("DFS Traversal mulai dari 'a' ");
+        WG.dfsTraversal(v1);
+        System.out.println();
+
+        System.out.println("BFS Traversal mulai dari 'a' ");
+        WG.bfsTraversal(v1);
+        System.out.println();
+
+        //Delete an edge
+        System.out.println("hapus edge (a, b)");
+        WG.deleteEdge(v1, v2);
+        System.out.println();
+
+        // Print the graph after deleting the edge
+        System.out.println("Graph setelah menghapus edge (a, b):");
+        WG.printGraph();
+        System.out.println();
+    }
+}
+
+Input soal Graph slide 27
+
+WG.addEdge(v1, v2, 1);
+WG.addEdge(v1, v4, 1);
+WG.addEdge(v1, v5, 1);
+WG.addEdge(v2, v5, 1);
+WG.addEdge(v3, v2, 1);
+WG.addEdge(v4, v7, 1);
+WG.addEdge(v5, v6, 1);
+WG.addEdge(v5, v8, 1);
+WG.addEdge(v6, v3, 1);
+WG.addEdge(v6, v8, 1);
+WG.addEdge(v7, v8, 1);
+WG.addEdge(v8, v9, 1);
+WG.addEdge(v9, v6, 1);
+
+Output
+
+directed Graph:
+C : (B,1)
+A : (B,1)(D,1)(E,1)
+H : (I,1)
+G : (H,1)
+D : (G,1)
+F : (C,1)(H,1)
+B : (E,1)
+E : (F,1)(H,1)
+I : (F,1)
+
+DFS Traversal mulai dari 'a'
+A B E F C H I D G
+
+BFS Traversal mulai dari 'a'
+A B D E G F H C I
+
+hapus edge (a, b)
+
+Graph setelah menghapus edge (a, b):
+C : (B,1)
+A : (D,1)(E,1)
+H : (I,1)
+G : (H,1)
+D : (G,1)
+F : (C,1)(H,1)
+B : (E,1)
+E : (F,1)(H,1)
+I : (F,1)

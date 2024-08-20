@@ -1,0 +1,184 @@
+Data structures
+kelompok 5:
+1. Jessen Ericko(535230006)
+2. Heru Purnomo(535230031)
+3. Ahmad Diky(535230101)
+
+Praktikum code file (2-Array220.pdf)
+_____________________________________________________________________________________________
+
+SOAL NO. 2
+
+import java.util.Scanner;
+
+public class OperasiSmoothing {
+    public static void main(String[] args) {
+        Scanner input =  new Scanner(System.in);
+
+        System.out.print("Masukkan Jumlah data hasil pengukuran : ");
+        int N = input.nextInt();
+
+        double[] B = new double[N];
+
+        double[] V = new double[N];
+
+        System.out.println("Masukkan data hasil pengukuran : ");
+        for(int i = 0; i< N; i++){
+            System.out.print("Data ke- " + (i + 1) + " : ");
+            B[i] = input.nextDouble();
+        }
+
+        for(int i = 0;  i < N; i++){
+            if(i == 0 || i == (N-1)){
+                V[i] = B[i];
+            } else{
+                V[i] = (B[i-1] + B[i] + B[i+1]) / 3;
+            }
+        }
+
+        System.out.println("Data");
+        for (int i = 0; i < N; i++){
+            System.out.println("Data ke- " + (i+1) + " : " + B[i]);
+        }
+
+        System.out.println("Data Smoothing");
+        for(int i = 0; i < N; i++){
+            System.out.println("Data Setelah Smoothing ke- : " + (i+1) + " : " + V[i]);
+        }
+
+        input.close();
+    }
+}
+
+Input :
+jumlah data = 5
+data ke 1 = 36
+data ke 2 = 54 
+data ke 3 = 67 
+data ke 4 = 86 
+data ke 5 = 53
+
+Output :
+Data Smoothing
+Data Setelah Smoothing ke- : 1 : 36.0
+Data Setelah Smoothing ke- : 2 : 52.333333333333336
+Data Setelah Smoothing ke- : 3 : 69.0
+Data Setelah Smoothing ke- : 4 : 68.66666666666667
+Data Setelah Smoothing ke- : 5 : 53.0
+
+___________________________________________________________________________________________
+
+SOAL NO. 7a
+
+class Node {
+    String data;
+    Node next;
+
+    Node(String data) {
+        this.data = data;
+        this.next = null;
+    }
+}
+
+class LinkedList {
+    Node head;
+
+    void insert(String data) {
+        Node newNode = new Node(data);
+        if (head == null) {
+            head = newNode;
+            return;
+        }
+        Node lastNode = head;
+        while (lastNode.next != null) {
+            lastNode = lastNode.next;
+        }
+        lastNode.next = newNode;
+    }
+
+    void splitList(LinkedList A, LinkedList FIRST, LinkedList SECOND) {
+        int length = length(A);
+        int mid = length / 2;
+
+        Node current = A.head;
+        Node prev = null;
+
+        for (int i = 0; i < mid; i++) {
+            prev = current;
+            current = current.next;
+        }
+
+        FIRST.head = A.head;
+        SECOND.head = current;
+
+        if (prev != null) {
+            prev.next = null;
+        }
+    }
+
+    int length(LinkedList list) {
+        int count = 0;
+        Node current = list.head;
+        while (current != null) {
+            count++;
+            current = current.next;
+        }
+        return count;
+    }
+
+    void display() {
+        Node current = head;
+        while (current != null) {
+            System.out.print(current.data + " ");
+            current = current.next;
+        }
+        System.out.println();
+    }
+}
+
+public class splitLInkedLIst {
+    public static void main(String[] args) {
+        LinkedList A = new LinkedList();
+        A.insert("Senin");
+        A.insert("Selasa");
+        A.insert("Rabu");
+        A.insert("Kamis");
+        A.insert("Jumat");
+        A.insert("Sabtu");
+        A.insert("Minggu");
+
+        LinkedList FIRST = new LinkedList();
+        LinkedList SECOND = new LinkedList();
+
+        System.out.println("Linked list A:");
+        A.display();
+
+        A.splitList(A, FIRST, SECOND);
+
+        System.out.println("Linked list FIRST:");
+        FIRST.display();
+        System.out.println("Linked list SECOND:");
+        SECOND.display();
+    }
+}
+
+Input:
+
+A.insert("Senin");
+A.insert("Selasa");
+A.insert("Rabu");
+A.insert("Kamis");
+A.insert("Jumat");
+A.insert("Sabtu");
+A.insert("Minggu");
+
+Output:
+
+Linked list A:
+Senin Selasa Rabu Kamis Jumat Sabtu Minggu 
+
+Linked list FIRST:
+Senin Selasa Rabu 
+
+Linked list SECOND:
+Kamis Jumat Sabtu Minggu

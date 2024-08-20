@@ -1,0 +1,138 @@
+Kelompok 5
+Anggota :
+    Jessen Ericko       (535230006)
+    Heru Purnomo        (5352300031)
+    Ahmad Diky Effendi  (535230101)
+
+//MST Algoritma Prim
+
+public void MSTPrim(T src) {
+		if (!adj.containsKey(src)) // invalid input
+			return;
+		SingleList<Edge<T>> outputList = new SingleList<>();
+		//
+		Set<T> inMST = new HashSet<>();
+		PriorityQueue<Edge<T>> pq = new PriorityQueue<>(Comparator.comparingInt(e -> e.weight));
+
+		inMST.add(src);
+		SingleList<Edge<T>> startList = adj.get(src);
+		Node<Edge<T>> curr = startList.head;
+		while (curr != null) {
+			pq.offer(curr.data);
+			curr = curr.next;
+		}
+
+		int totalMST = 0;
+
+		while (!pq.isEmpty()) {
+			Edge<T> edge = pq.poll();
+			T u = edge.vertex;
+			T v = edge.neighbor;
+
+			if (inMST.contains(v)) continue;
+			inMST.add(v);
+			outputList.pushQ(edge);
+			totalMST += edge.weight;
+
+			SingleList<Edge<T>> edgesList = adj.get(v);
+			Node<Edge<T>> temp = edgesList.head;
+			while (temp != null) {
+				if (!inMST.contains(temp.data.neighbor)) {
+					pq.offer(temp.data);
+				}
+				temp = temp.next;
+			}
+		}
+
+		outputList.cetakList();
+		System.out.println("MST Length = " + totalMST);
+	}
+
+//MST Algoritma Kruskal
+
+public void MSTKruskal() {
+		//output: list of edges nodes
+		SingleList<Edge<T>> outputList = new SingleList<>();
+		int totalMST = 0;
+
+		//add all edges in a list and sort them
+
+		// Create a list of all edges
+		List<Edge<T>> allEdges = new ArrayList<>();
+		Set<String> uniqueEdges = new HashSet<>();
+		for (T key : adj.keySet()) {
+			SingleList<Edge<T>> edgeList = adj.get(key);
+			Node<Edge<T>> curr = edgeList.head;
+			while (curr != null) {
+				// Ensure each edge is only added once for undirected graphs
+				String edgeKey = key.toString() + "-" + curr.data.neighbor.toString();
+				String reverseEdgeKey = curr.data.neighbor.toString() + "-" + key.toString();
+				if (!uniqueEdges.contains(edgeKey) && !uniqueEdges.contains(reverseEdgeKey)) {
+					allEdges.add(curr.data);
+					uniqueEdges.add(edgeKey);
+				}
+				curr = curr.next;
+			}
+		}
+
+		// Sort edges based on weight
+		allEdges.sort(Comparator.comparingInt(e -> e.weight));
+
+		// Union-Find structure to detect cycles
+		Map<T, T> parent = new HashMap<>();
+		for (T vertex : adj.keySet()) {
+			parent.put(vertex, vertex);
+		}
+
+		// Helper function for union-find to find the root
+		class UnionFind {
+			T find(T v) {
+				if (parent.get(v) != v) {
+					parent.put(v, find(parent.get(v)));
+				}
+				return parent.get(v);
+			}
+
+			void union(T u, T v) {
+				T root1 = find(u);
+				T root2 = find(v);
+				if (!root1.equals(root2)) {
+					parent.put(root1, root2);
+				}
+			}
+		}
+
+		UnionFind uf = new UnionFind();
+
+		// Process edges in ascending order of weight
+		for (Edge<T> edge : allEdges) {
+			T u = edge.vertex;
+			T v = edge.neighbor;
+
+			// Check if the current edge forms a cycle
+			if (!uf.find(u).equals(uf.find(v))) {
+				uf.union(u, v);
+				outputList.pushQ(edge);
+				totalMST += edge.weight;
+			}
+		}
+
+		// Print MST edges
+		outputList.cetakList();
+		System.out.println("MST Length = " + totalMST);
+	}
+
+Input : sama seperti di MainProgram
+Output :
+Undirected Graph:
+e : (e,d,2)(e,c,1)
+a : (a,b,4)(a,c,6)
+c : (c,a,6)(c,b,1)(c,e,1)
+b : (b,a,4)(b,c,1)(b,d,3)
+d : (d,b,3)(d,e,2)
+MST dengan Algoritma Prim:
+[ (a,b,4) (b,c,1) (c,e,1) (e,d,2) ]
+MST Length = 8
+MST dengan Algoritma Kruskal:
+[ (e,c,1) (c,b,1) (e,d,2) (a,b,4) ]
+MST Length = 8

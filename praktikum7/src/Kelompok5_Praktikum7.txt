@@ -1,0 +1,130 @@
+Kelompok 5
+Nama : Heru Purnomo (535230031)
+       Jessen Ericko (535230006)
+       Ahmad Dicky Effendi (535230101)
+
+HuffmanNode.java
+
+        package strukdat;
+
+        public class HuffmanNode extends GNode<Integer, Character> {
+            TheArrayList<String> codeList;
+
+            public HuffmanNode(int freq, char letter, HuffmanNode node1, HuffmanNode node2) {
+                super(freq, letter);
+                llink = node1;
+                rlink = node2;
+            }
+
+            public TheArrayList<String> getHuffmanCodes(HuffmanNode root, int n) {
+                String s = "";
+
+                codeList = new TheArrayList<String>(n);
+                printCode(root, s);
+
+                return codeList;
+            }
+
+            public void printCode(HuffmanNode node, String s) {
+                if (node.llink == null && node.rlink == null) { // Jika kedua link null, ini adalah leaf node
+                    codeList.add(node.data.toString() + ": " + s);
+                    return;
+                }
+
+                assert node.llink != null;
+
+                printCode((HuffmanNode) node.llink, s + "1");
+                printCode((HuffmanNode) node.rlink, s + "0");
+            }
+        }
+
+
+HuffmanCoding.java
+
+        import strukdat.HuffmanNode;
+        import strukdat.Heap;
+        import strukdat.TheArrayList;
+
+        public class HuffmanCoding {
+            public static void main(String[] args) {
+                char[] charArray = {'A', 'I', 'M', 'O', 'K', 'N', 'F', 'R', 'T'};
+                int[] charFreq = {45, 35, 29, 19, 15, 10, 8, 5, 4};
+
+                // Create a priority queue with min heap
+                Heap<Integer, HuffmanNode> pq = new Heap<Integer, HuffmanNode>(charArray.length, true);
+
+                // Input each character and its frequency to pq
+                for (int i = 0; i < charArray.length; i++) {
+                    HuffmanNode node = new HuffmanNode(charFreq[i], charArray[i], null, null);
+                    pq.insert(charFreq[i], node);
+                }
+
+                // Build minimum heap from pq
+                pq.buildHeap();
+
+                HuffmanNode root = null;
+                HuffmanNode x, y;
+                int sum;
+
+                while (pq.size() > 1) {
+                    sum = pq.getKey(pq.first());
+                    x = pq.getData(pq.first());
+                    pq.removeFirst();
+
+                    sum += pq.getKey(pq.first());
+                    y = pq.getData(pq.first());
+                    pq.removeFirst();
+
+                    root = new HuffmanNode(sum, ' ', x, y);
+                    pq.insert(sum, root);
+                }
+
+                TheArrayList<String> huffmanCodes = new TheArrayList<String>(charArray.length);
+                if (root != null) {
+                    huffmanCodes = root.getHuffmanCodes(root, charArray.length);
+                } else {
+                    System.out.println("Pohon Huffman tidak berhasil dibangun.");
+                }
+
+                System.out.print("[ ");
+                for (int i = 0; i < charArray.length; i++) {
+                    System.out.print(huffmanCodes.get(i) + " ");
+                }
+                System.out.println("]");
+
+                System.out.println("---------------------");
+                System.out.println(" Huruf | Huffman code");
+                System.out.println("---------------------");
+                for (int i = 0; i < huffmanCodes.size(); i++) {
+                    // Split each string in ArrayList to get the character and its Huffman code
+                    String[] parts = huffmanCodes.get(i).split(": ");
+
+                    // Display the character and its Huffman code
+                    System.out.println("  " + parts[0] + "   |   " + parts[1]);
+                }
+
+                System.out.println("---------------------");
+            }
+        }
+
+Input
+
+'A', 'I', 'M', 'O', 'K', 'N', 'F', 'R', 'T'
+45, 35, 29, 19, 15, 10, 8, 5, 4
+
+Output
+
+[ I: 11 F: 1011 T: 10101 R: 10100 O: 100 A: 01 N: 0011 K: 0010 M: 000 ]
+---------------------
+ Huruf | Huffman code
+---------------------
+  I   |   11
+  F   |   1011
+  T   |   10101
+  R   |   10100
+  O   |   100
+  A   |   01
+  N   |   0011
+  K   |   0010
+  M   |   000
+---------------------

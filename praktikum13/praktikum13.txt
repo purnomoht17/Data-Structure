@@ -1,0 +1,90 @@
+Kelompok 5
+Anggota :
+    Jessen Ericko       (535230006)
+    Heru Purnomo        (535230031)
+    Ahmad Diky Effendi  (535230101)
+
+fungsi Topological Ordering dari DAG
+
+//Topological Ordering dari DAG.
+	public List<T> topologicalSort() {
+		if (!directed) {
+			throw new UnsupportedOperationException("Topological sort is only applicable to directed graphs.");
+		}
+
+		Map<T, Integer> inDegree = new HashMap<>();
+		for (T u : adj.keySet()) {
+			inDegree.putIfAbsent(u, 0);
+			SingleList<Edge<T>> thelist = adj.get(u);
+			Node<Edge<T>> curr = thelist.head;
+			while (curr != null) {
+				T v = curr.data.neighbor;
+				inDegree.put(v, inDegree.getOrDefault(v, 0) + 1);
+				curr = curr.next;
+			}
+		}
+
+		Queue<T> queue = new LinkedList<>();
+		for (Map.Entry<T, Integer> entry : inDegree.entrySet()) {
+			if (entry.getValue() == 0) {
+				queue.add(entry.getKey());
+			}
+		}
+
+		List<T> topologicalOrder = new ArrayList<>();
+		while (!queue.isEmpty()) {
+			T u = queue.poll();
+			topologicalOrder.add(u);
+			SingleList<Edge<T>> thelist = adj.get(u);
+			Node<Edge<T>> curr = thelist.head;
+			while (curr != null) {
+				T v = curr.data.neighbor;
+				inDegree.put(v, inDegree.get(v) - 1);
+				if (inDegree.get(v) == 0) {
+					queue.add(v);
+				}
+				curr = curr.next;
+			}
+		}
+
+		if (topologicalOrder.size() != adj.size()) {
+			throw new RuntimeException("The graph has a cycle.");
+		}
+		return topologicalOrder;
+	}
+
+MainPrgram
+
+public class MainProgram {
+    public static void main(String[] args) {
+        //create vertex
+        MyVertex v1 = new MyVertex("a");
+        MyVertex v2 = new MyVertex("b");
+        MyVertex v3 = new MyVertex("c");
+        MyVertex v4 = new MyVertex("d");
+        MyVertex v5 = new MyVertex("e");
+
+
+        WeightedGraph<MyVertex> WG = new WeightedGraph<MyVertex>(true); //undirected
+        WG.addEdge(v1, v2, 4);
+        WG.addEdge(v1, v3, 6);
+        WG.addEdge(v2, v3, 1);
+        WG.addEdge(v2, v4, 2);
+        WG.addEdge(v4, v5, 2);
+        WG.addEdge(v5, v3, 1);
+
+        System.out.println("Direct Graph:"); WG.printGraph();
+        System.out.println("Topological Ordering " + WG.topologicalSort());
+
+    }
+}
+
+Output  :
+
+Direct Graph:
+e : (e,c,1)
+a : (a,b,4)(a,c,6)
+c :
+b : (b,c,1)(b,d,2)
+d : (d,e,2)
+Topological Ordering [a, b, d, e, c]

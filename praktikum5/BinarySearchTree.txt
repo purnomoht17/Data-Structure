@@ -1,0 +1,286 @@
+Kelompok 5 Data Structure
+Anggota :
+1. Jessen Ericko(535230006)
+2. Heru Purnomo(535230031)
+3. Ahmad Dicky(535230101)
+
+BinaryTree.java
+
+    package strukdat;
+
+    public class BinaryTree<K,V> {
+        //rekursif in order traversal
+        public void printInOrder(GNode<K,V> node) {
+            if(node == null) return;
+            else {
+                //ke left node secara rekursif
+                printInOrder(node.llink);
+                //cetak node
+                System.out.print(node + " ");
+                //ke right node secara rekursif
+                printInOrder(node.rlink);
+            }
+        }
+
+        //post order traversal
+        public void printPostOrder(GNode<K,V> node) {
+            if(node == null) return;
+            else {
+                //ke left node secara rekursif
+                printPostOrder(node.llink);
+                //ke right node secara rekursif
+                printPostOrder(node.rlink);
+                //cetak node
+                System.out.print(node + " ");
+            }
+        }
+
+        //pre order traversal
+        void printPreOrder(GNode<K,V> node) {
+            if(node == null) return;
+            else {
+                //cetak node
+                System.out.print(node + " ");
+                //ke left node secara rekursif
+                printPreOrder(node.llink);
+                //ke right node secara rekursif
+                printPreOrder(node.rlink);
+            }
+        }
+
+        //cetak node di setiap level dari root, left child,
+        //dan right child secara rekursif
+        public void printLevelOrderRec(SingleList<GNode<K,V>> q) {
+            if(q.isEmpty()) return;
+            GNode<K,V> node = q.remove();
+            //cetak key dari node
+            System.out.print(node + " ");
+            if(node.llink != null) q.pushQ(node.llink);
+            if(node.rlink != null) q.pushQ(node.rlink);
+            printLevelOrderRec(q);
+        }
+
+        //level order traversal
+        public void printLevelOrder(GNode<K,V> node) {
+            //buat queue untuk menampung node disetiap level
+            SingleList<GNode<K,V>> q = new SingleList<GNode<K,V>>();
+            q.pushQ(node);
+            //memanggil fungsi rekursif untuk mencetak key
+            //dari node di setiap level
+            printLevelOrderRec(q);
+        }
+    }
+
+BinarySearchTree.java
+
+    package strukdat;
+
+    public class BinarySearchTree<K extends Comparable<? super K>, V> extends BinaryTree<K,V> implements Tree<K,V> {
+
+        private GNode<K,V> root;
+        public BinarySearchTree(){
+            root = null;
+        }
+        @Override
+        public void insert(K key, V data) {
+            root = insertNode(root, key, data);
+        }
+        @Override
+        public void delete(K key) {
+            root = deleteNode(root, key);
+        }
+        public V search(K key){
+            V info = null;
+            info = getData(find(root,key));
+            return info;
+        }
+        public K max(){
+            K kunci = null;
+            kunci = getKey(findMax(root));
+            return kunci;
+        }
+        public K min(){
+            K kunci = null;
+            kunci = getKey(findMin(root));
+            return kunci;
+
+        }
+
+        private GNode<K,V> insertNode(GNode<K,V> node, K k, V data) {
+            //Jika tree masih kosong (belum ada node sama sekali), atau
+            //T sebelumnnya adalah child node. Buat node baru yang akan 
+            //di-link-kan ke child node sebelumnya
+            if(node == null) {
+            //buat node baru
+                GNode<K,V> newNode = new GNode<K,V>(k, data);
+                return newNode;
+            }
+
+            //.nk
+            else if(k.compareTo(node.key) < 0) {
+                node.llink = insertNode(node.llink, k, data);
+                return node;
+            }
+            //key dari node baru lebih besar dari atau sama dengan 
+            //key child node sebelumnya. Goto the right node (subtree)
+            //node baru akan di-link ke right link
+            else {
+                node.rlink = insertNode(node.rlink, k, data);
+                return node;
+            }
+
+        }
+        private GNode<K,V> deleteNode(GNode<K,V> node, K k) {
+            if (node == null)
+                return node;
+
+            // Cari node yang akan dihapus
+            if (k.compareTo(node.key) < 0)
+                node.llink = deleteNode(node.llink, k);
+            else if (k.compareTo(node.key) > 0)
+                node.rlink = deleteNode(node.rlink, k);
+            else {
+                // Node dengan satu atau tidak ada child
+                if (node.llink == null)
+                    return node.rlink;
+                else if (node.rlink == null)
+                    return node.llink;
+
+                // Node dengan dua child: Dapatkan penerus inorder (node terkecil di subtree kanan)
+                node.key = findMin(node.rlink).key;
+
+                // Hapus penerus inorder
+                node.rlink = deleteNode(node.rlink, node.key);
+            }
+            return node;
+        }
+        private GNode<K,V> find(GNode<K,V> node, K k) {
+            //node adalah subtree (root dari subtree)
+            if(node == null || node.key == k) return node;
+            else if(node.key.compareTo(k) < 0) return find(node.rlink, k);
+            else return find(node.llink, k);
+
+        }
+        private GNode<K,V> findMin(GNode<K,V> node) {
+            if (node == null)
+                return null;
+            else if (node.llink == null)
+                return node;
+            else
+                return findMin(node.llink);
+        }
+        private GNode<K,V> findMax(GNode<K,V> node) {
+            if (node == null)
+                return null;
+            else if (node.rlink == null)
+                return node;
+            else
+                return findMax(node.rlink);
+        }
+
+        public void inOrder() {
+            printInOrder(root);
+        }
+        public void preOrder() {
+            printPreOrder(root);
+        }
+        public void postOrder() {
+            printPostOrder(root);
+        }
+        public void levelOrder() {
+            printLevelOrder(root);
+        }
+        public K getKey(GNode<K,V> node) {
+            return node.key;
+        }
+        public V getData(GNode<K,V> node) {
+            return node.data;
+        }
+
+    }
+
+BSTApp.java
+
+    import strukdat.BinarySearchTree;
+    import strukdat.Tree;
+
+    public class BSTApp {
+
+        public static void main(String[] args) {
+            BinarySearchTree<Integer,String> bst = new BinarySearchTree<>();
+
+            bst.insert(27,"A");
+            bst.insert(13,"B");
+            bst.insert(54,"C");
+            bst.insert(12,"D");
+            bst.insert(24,"E");
+            bst.insert(40,"F");
+            bst.insert(56,"G");
+            bst.insert(10,"H");
+            bst.insert(15,"I");
+            bst.insert(33,"J");
+            bst.insert(77,"K");
+            bst.insert(3,"L");
+            bst.insert(22,"M");
+            bst.insert(73,"N");
+            bst.insert(85,"O");
+
+            System.out.println("Inorder Traversal");
+            bst.inOrder();
+            System.out.println();
+            System.out.println("Search 12 => " + bst.search(12));       //cari node\
+            System.out.println("Min = " + bst.min());   //min node
+            System.out.println("Max = " + bst.max());   //max node
+            System.out.println();
+
+            System.out.println("Postorder Traversal");
+            System.out.print("Postorder before remove 33 : ");
+            bst.postOrder();
+            System.out.println();
+            System.out.print("Postorder after remove 33 : ");
+            bst.delete(33);     //delete node
+            bst.postOrder();
+            System.out.println();
+            System.out.println();
+
+            System.out.println("Preorder");
+            bst.preOrder();
+            System.out.println();
+            System.out.println();
+
+            System.out.println("Levelorder Traversal");
+            bst.levelOrder();
+        }
+    }
+
+INPUT DATA
+
+                        27
+                   /            \
+                  13            54
+               /      \         / \
+             12        24      40  56
+             /         /      /     \
+           10         15     33      77
+           /            \           /  \
+          3              22        73   85
+
+(27,"A"),(54,"C"),(13,"B" ),(24,"E"),(40,"F"),(56,"G"),(77,"K"),(33,"J"),(12,"D"),(85,"O"),(73,"N"),(10,"H"),(3,"L"),(15,"I"),(22,"M")
+
+OUTPUT
+
+Inorder Traversal
+3:L  10:H  12:D  13:B  15:I  22:M  24:E  27:A  33:J  40:F  54:C  56:G  73:N  77:K  85:O
+Search 12 => D
+Min = 3
+Max = 85
+
+Postorder Traversal
+Postorder before remove 33 : 3:L  10:H  12:D  22:M  15:I  24:E  13:B  33:J  40:F  73:N  85:O  77:K  56:G  54:C  27:A
+Postorder after remove 33 : 3:L  10:H  12:D  22:M  15:I  24:E  13:B  40:F  73:N  85:O  77:K  56:G  54:C  27:A
+
+Preorder
+27:A  13:B  12:D  10:H  3:L  24:E  15:I  22:M  54:C  40:F  56:G  77:K  73:N  85:O
+
+Levelorder Traversal
+27:A  13:B  54:C  12:D  24:E  40:F  56:G  10:H  15:I  77:K  3:L  22:M  73:N  85:O
